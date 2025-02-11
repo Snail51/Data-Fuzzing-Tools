@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/assets/css/site.css">
+    
+        <meta charset='utf-8'>
+        <title>File Byte Editor</title>
+        <link rel="icon" href="/tools/fuzzing.jpg" type="jpg">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <title>File Byte Editor</title>
+        <meta charset="utf-8">
+        <meta name="description" content="Various fuzzing tools for CS-5732">
+        <meta name="keywords" content="Snail51,snail51,Brendan Rood,tool,tools,fuzzing,data,data processing,data fuzzing,security,computer security">
+
+        <meta property="og:title" content="File Byte Editor">
+        <meta property="og:description" content="Various fuzzing tools for CS-5732">
+        <meta property="og:site_name" content="Snailien Concepts">
+        <meta property="og:url" content="snailien.net">
+        <meta property="og:image" content="/tools/fuzzing.jpg">
+
+        <meta itemprop="name" content="File Byte Editor">
+        <meta itemprop="description" content="Various fuzzing tools for CS-5732">
+        <meta itemprop="image" content="/tools/fuzzing.jpg">
+
+        <meta name="twitter:card" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:url" content="snailien.net">
+        <meta name="twitter:title" content="File Byte Editor">
+        <meta name="twitter:description" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:image" content="/tools/fuzzing.jpg">
+
+        <!-- <EXTERNAL DEPENDENCY>  -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+        <!-- </EXTERNAL DEPENDENCY> -->
+
+    </head>
+    <body> 
+        <h1>File Byte Editor</h1>
+        <i style="color: whitesmoke;"><u>This tool was developed by Brendan Rood on 12/07/2024</u></i>
+        <p>
+            Provide one or more files, the index of the byte you want to modify, and the desired value.<br>
+            All files will have that byte changed to that value.<br>
+            <br>
+            Resultant files will be returned as a zip file linked below.<br>
+        </p>
+        <hr>
+        <div style="display: flex;">
+            <div style="flex: 1">
+                <p style="display: block;">Input Files:</p>
+                <input type="file" id="input" multiple style="display:block;">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Byte to Modify:</p>
+                <input id="byte" type="number" min="0" step="1" placeholder="17">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Replacement Value:</p>
+                <input id="replacement" type="number" min="0" max="255" step="1" placeholder="169">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Begin Processing</p>
+                <button onclick="mainExecute()">Execute</button>
+            </div>
+        </div>
+        <hr>
+
+        <a id="resultLINK">&lt;download link will appear here after execution&gt;</a>
+        <progress id="zipProgress" value="0" max="100" style="width: 20vw;"></progress>
+
+        <script type="module">
+            import { Editor } from "./code/editor.js";
+            window.main = new Editor("input", "byte", "replacement", "resultLINK");
+        </script>
+
+        <script>
+            async function mainExecute()
+            {
+                await window.main.execute(); // do main function processing
+                await provide(); // provide the resultant files as a .zip
+            }
+
+            async function provide()
+            {
+                var urls = window.main.outfiles;
+                //==console.debug(urls);
+
+                let totalSize = 0;
+                let downloadedSize = 0;
+
+                setTimeout(downloadFiles, 500);
+
+                async function downloadFiles() {
+                    var outlink = document.getElementById("resultLINK");
+                    outlink.href = null;
+                    outlink.download = null;
+                    outlink.innerHTML = "Zipping... please wait...";
+
+                    const zip = new JSZip();
+
+                    async function fetchNextUrl(currentIndex, urlCount) {
+                        if (currentIndex >= urls.length) { // BASE CASE, STOP RECURSION
+                            return;
+                        }
+
+                        const url = urls[currentIndex];
+
+                        try {
+                            const response = await fetch(url);
+                            const blob = await response.blob();
+                            
+                            // Update total size
+                            totalSize += blob.size;
+
+                            // Add file to Zip
+                            const filename = `${currentIndex}_${Date.now()}.${blob.type.split("/")[1]}`;
+                            zip.file(filename, blob);
+
+                            //==console.debug(`Fetched ${url} successfully`);
+                        } catch (error) {
+                            console.error(`Error downloading ${url}:`, error);
+                            throw error;
+                        }
+
+                        await fetchNextUrl(currentIndex + 1, urlCount); // RECURSE to next fetch
+                    }
+
+                    try {
+                        // Wait for all downloads to complete SEQUENTIALLY
+                        await fetchNextUrl(0, urls.length);
+
+                        var progCounter = 0;
+
+                        // Generate Zip file as Blob (AND TRACK PROGRESS)
+                        var blob = await zip.generateAsync({type:"blob"}, function updateCallback(metadata) {
+                            document.getElementById("zipProgress").value = metadata.percent;
+                        });
+                        window.main.outzip = URL.createObjectURL(blob);
+                        
+                        //==console.debug(window.main.outzip);
+
+                        outlink.href = window.main.outzip;
+                        outlink.download = `${Date.now()}.zip`;
+                        outlink.innerHTML = `${Date.now()}.zip`;
+
+                    } catch (error) {
+                        outlink.download = `OUTPUT ERROR`;
+                        outlink.innerHTML = `OUTPUT ERROR`;
+                        showError(error);
+                    }
+                }
+
+                function showProgress(progress) {
+                    document.getElementById('progress').style.display = 'block';
+                    document.getElementById('progress').querySelector('p').textContent = `Downloading... (${Math.round((downloadedSize / totalSize) * 100)}%)`;
+                    document.getElementById('progress').querySelector('progress').value = Math.round((downloadedSize / totalSize) * 100);
+                }
+
+                function showError(error) {
+                    alert(`Error downloading files: ${error.message}`);
+                }
+            }
+        </script>
+    </body>
+</html>

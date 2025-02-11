@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/assets/css/site.css">
+    
+        <meta charset='utf-8'>
+        <title>File Fuzzer</title>
+        <link rel="icon" href="/tools/fuzzing.jpg" type="jpg">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <title>File Fuzzer</title>
+        <meta charset="utf-8">
+        <meta name="description" content="Various fuzzing tools for CS-5732">
+        <meta name="keywords" content="Snail51,snail51,Brendan Rood,tool,tools,fuzzing,data,data processing,data fuzzing,security,computer security">
+
+        <meta property="og:title" content="File Fuzzer">
+        <meta property="og:description" content="Various fuzzing tools for CS-5732">
+        <meta property="og:site_name" content="Snailien Concepts">
+        <meta property="og:url" content="snailien.net">
+        <meta property="og:image" content="/tools/fuzzing.jpg">
+
+        <meta itemprop="name" content="File Fuzzer">
+        <meta itemprop="description" content="Various fuzzing tools for CS-5732">
+        <meta itemprop="image" content="/tools/fuzzing.jpg">
+
+        <meta name="twitter:card" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:url" content="snailien.net">
+        <meta name="twitter:title" content="File Fuzzer">
+        <meta name="twitter:description" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:image" content="/tools/fuzzing.jpg">
+    </head>
+    <body>
+        <h1>File Fuzzer</h1>
+        <i style="color: whitesmoke;"><u>This tool was developed by Brendan Rood on 12/05/2024</u></i>
+        <p>
+            Provide a file, the byte ranges you want to fuzz, and the chance for any given byte to be fuzzed.<br>
+            Doing so will allow you to create "fuzzed" versions of the original file.<br>
+            <br>
+            If the output file is an image, and is not so corrupted that it can't be drawn, a preview will appear below.<br>
+            Images have a <span style="color: red">red</span> pannel behind them to help see transparency.<br>
+            <br>
+            Click the <span style="color: cyan">cyan</span> link to download the result.<br>
+            <br>
+            The bytes that were modified during the execution will also be listed. [<span style="color: yellow">INDEX</span>](<span style="color: red">OLD VALUE</span>-&gt;<span style="color: lime">NEW VALUE</span>)
+        </p>
+        <hr>
+        <div style="display: flex;">
+            <div style="flex: 1">
+                <p style="display: block;">Original:</p>
+                <input type="file" id="original" single style="display:block;">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Bytes to Fuzz:</p>
+                <input id="bytes" type="text" placeholder="0-10;14;20-22">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Mutation Chance:</p>
+                <input id="chance" type="number" min="0" max="1" step="0.01" value="0.12">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Begin Processing</p>
+                <button onclick="window.fuzzFile()">Fuzz File</button>
+                <button onclick="window.fuzzImage()">Fuzz Image</button>
+            </div>
+        </div>
+        <hr>
+
+        <p id="resultLIST" style="word-wrap: keep-all;">&lt;List of modified bytes will appear here after execution&gt;</p>
+        <br>
+        <img id="resultIMAGE" alt="&lt;UNDRAWABLE FILE&gt;" style="width: 90vw; height: 60vmin; object-fit: contain; padding: 2%; background-color: red;">
+        <br>
+        <a id="resultLINK">&lt;download link will appear here after execution&gt;</a>
+
+        <script type="module">
+            import { Fuzzer } from "./code/fuzzer.js";
+            window.main = new Fuzzer("original", "bytes", "chance", "resultIMAGE", "resultLINK", "resultLIST");
+        </script>
+
+        <script>
+            window.fuzzImage = function()
+            {
+                window.main.preview.onerror = () => window.main.execute(); // make it so the program retries in a loop for IMAGES ONLY
+                window.main.execute();
+            }
+            window.fuzzFile = function()
+            {
+                window.main.preview.onerror = () => null; // clear this so errors are not handled
+                window.main.execute();
+            }
+        </script>
+    </body>
+</html>

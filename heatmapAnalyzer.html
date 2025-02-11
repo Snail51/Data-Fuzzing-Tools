@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/assets/css/site.css">
+    
+        <meta charset='utf-8'>
+        <title>File Diff Heatmap</title>
+        <link rel="icon" href="/tools/fuzzing.jpg" type="jpg">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+        <title>File Diff Heatmap</title>
+        <meta charset="utf-8">
+        <meta name="description" content="Various fuzzing tools for CS-5732">
+        <meta name="keywords" content="Snail51,snail51,Brendan Rood,tool,tools,fuzzing,data,data processing,data fuzzing,security,computer security">
+
+        <meta property="og:title" content="File Diff Heatmap">
+        <meta property="og:description" content="Various fuzzing tools for CS-5732">
+        <meta property="og:site_name" content="Snailien Concepts">
+        <meta property="og:url" content="snailien.net">
+        <meta property="og:image" content="/tools/fuzzing.jpg">
+
+        <meta itemprop="name" content="File Diff Heatmap">
+        <meta itemprop="description" content="Various fuzzing tools for CS-5732">
+        <meta itemprop="image" content="/tools/fuzzing.jpg">
+
+        <meta name="twitter:card" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:url" content="snailien.net">
+        <meta name="twitter:title" content="File Diff Heatmap">
+        <meta name="twitter:description" content="Various fuzzing tools for CS-5732">
+        <meta name="twitter:image" content="/tools/fuzzing.jpg">
+    </head>
+    <body>
+        <h1>Fuzzing Heatmap</h1>
+        <i style="color: whitesmoke;">This tool was developed by Brendan Rood in the spring of 2024</i>
+        <hr>
+        <div style="display: flex;">
+            <div style="flex: 1">
+                <p style="display: block;">Original:</p>
+                <input type="file" id="original" single style="display:block;">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Mutants:</p>
+                <input type="file" id="mutants" multiple style="display:block;">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Header Size:</p>
+                <input type="number" id="head">
+            </div>
+            <div style="flex: 1">
+                <p style="display: block;">Begin Processing</p>
+                <button onclick="window.main.execute()">Execute</button>
+            </div>
+        </div>
+        <hr>
+        
+        <p id="result" style="max-width: 95vw;">(Results will go here upon execution)</p>
+
+        <hr>
+
+        <pre style="max-width: 95vw; font-size: 12px;">
+
+<a href="https://lars.d.umn.edu/RTN/program.html?data=eNqdVctOG0EQvPMVjU-JlOQXOBBHQSIgAVGUY3u3vTtidmc1DxZzQrnmyjFfx5eketY2xmCyjoUs786jqquqmy_p7o6ja-mrcGy4O3h8-PP4cL_1R4_3v3_UHMkE-oITpq2OsPMXDR-s7jy23K4nYy3UeVdICOTmFPlaF5jmxgpxW5LHl2vsghpXmvlCVwvxkU1Ls0WU8Gkk5hWAKsc2gzoKIlS7nppU1FQwLpMBwUhJfa3oIRpr8V4hvXDJMysv0B5eRzvJsnRe5uL1HM2dR1WotPLcKIFJZW6EUjdBhRDBQwmwUBwqnPepiyBScuTDf8sf61yUs0ejxVgeILbW9YEWLikpU0oboTJFL20ZUHzsRVqoFLmNgeS2NjMTN02Ing1WuMJDiKgxYBUFT5w3lWnZTrKX-9iUAuQInRTqxhCRGrroS3MntHJ--8YxvjwV7lpkKqSucx70laIiQc-a4UsjkVV8VFzYFGAVdmNRuYTIPuaw4kEPHozFlnUAShM6y4uhOC8hWZBAxyEi4j9qeTTjYMJu7y-giPqwccFIiaeMyMNnvyDY7aCkwqImUyTLPotL76ByLbdQvTAN2_d72OelzHGWfNOH_Ot0enlJ0TTAMpF6Dk_NVrgG4PiB_OnWVW72ULXyCOkLzG_nF9P9MXfATG-56RDr70HomAPSR2MGnWmzSTmvCnZ2fkVzTL_np8coe5wp5-HYrvmu2y6neTWk1u3a6wDzciPY6WY3xqVAk9oh6hPNLwTYnwf0Djo6tV-8YMIFRGlVoPYPhilCtXOeogPKVGzOVHIpdim-QeWtZjYtRmvD0Wj3PBtmRcJkFX3yWfPcLdr6WGshyvAWpB0K2sp_2MmGRhD77BQruGWxosnzea7Nk125c3gw5qqT5UTeSNG64XUSbvIWjC7j_Oa9tGeyyh3RWs1HWf0LeA34Wd56zcLAeKkCunAntbEOFy7ZcvB5jM3nZ6c_x7pM_-nxVuhqKa4HMlDL-cXhXxZU8ks" style="color: cyan">Fuzzaton Heatmap</a>
+├── ​What is Fuzzing?
+│   ​├── ​Fuzzing is the process of taking a file and randomly modifying certain bytes.
+│   ​├── ​The goal is to see how much can be modified while still being readable.
+│   ​└── ​It is preferable for a program to "give up" rather than read corrupted data!
+├── ​What is this tool?
+│   ​├── ​This tool allows you to identify trends between mutants exhibiting certain traits against a single "original" file.
+│   ​├── ​The user specifies the header size in bytes
+│   ​│   ​└── ​This tool only supports files that have metadata exclusively at the start of the file
+│   ​└── ​The program displays the results on a per-byte basis
+├── ​Reading the results
+│   ​├── ​Each entry denotes a particular byte (in hexadecimal)
+│   ​├── ​The reder the byte, the LESS times it was modified compared to the original
+│   ​└── ​The greener the byte, the MORE times it was modified compared to the original
+└── ​Example Use Cases
+    ​├── ​​<a href="./resources/no-go.jpg" style="color: cyan">Finding bytes to NOT fuzz</a>
+    ​│   ​├── Comparing an original against only readable mutants will reveal obvious "holes" of red
+    ​│   ​├── ​These holes represent bytes that cannot be modified while still producing readable output
+    ​│   ​└── ​This information allows you to curate your fuzzing tool to never fuzz those particular bytes
+    ​│   ​    ​└── ​Doing so produces more useful mutants!
+    ​└── ​<a href="./resources/behavior.jpg" style="color: cyan">Identifying bytes the result in particular behavior</a>
+    ​    ​├── ​Comparing and original against only files the exhibit particular behavior will reveal what bytes produce it
+    ​    ​└── ​This information could allow you to curate your fuzzing tool to ONLY fuzz those particular bytes
+    ​    ​    ​└── ​Doing so allows you to check your theory!
+
+<a href="./findings/ACS_FuzzingFindings.txt">Accompanying Notes/Instructions for the class this tool was made for</a>
+        </pre>
+
+        <script type="module">
+            import { heatmap } from "./code/analyser.js";
+            window.main = new heatmap("original", "mutants", "head");
+        </script>
+
+        <script>
+            function navigateRoot()
+            {
+                window.location.href = "./index.html";
+            }
+            function proceed()
+            {
+                alert("program execution would now countine");
+            }
+        </script>
+    </body>
+</html>

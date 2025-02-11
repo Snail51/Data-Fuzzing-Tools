@@ -1,0 +1,44 @@
+The following is a subsection of messages from the #fuzzing channel in the Spring 2024 Advanced Computer Security Slack at UMD
+
+===============================================================
+
+The header structure of .bmp - https://upload.wikimedia.org/wikipedia/commons/7/75/BMPfileFormat.svg
+https://en.wikipedia.org/wiki/BMP_file_format
+Bitmap Fuzzing Findings
+basically, ive been doing a bunch of research and experimentation on bitmaps. there are two components of the bitmap that can be changed by fuzzing that still produce a visually interesting result, `number of bits per pixel` and `offset where the pixel array (bitmap data) can be found`
+I used GIMP to produce a bitmap encoded with 32 bits per pixel, and then allowed zzuf to fuzz these values. For example, trying to read 32-bit data as though it was 18-bit data, all kinds of color shifting and banding occur
+As for the offset, if you take an image and increase the offset by 1, the red channel gets mapped to the green channel, the green to blue, and the blue to red. This causes the image's color to shift
+
+I also finally learned how `-b` works in zzuff
+`...\/zzuf -r 0.01 -s $ts -b 26-150` uses the `-b` argument to only fuzz bytes 26-150, as this is the only part of the header that can be modified to not produce unreadable results. do note, that fuzzing bytes 2-150 will give more varied results but will also result in more unreadable files
+I recognize that im nerding out about file formats again but there is definitely a lesson that we all can learn here; sometimes formats can be made ambigious in ways such that it is not possible to determine that the data is erroneous
+The computer sees that it should read this image with 18-bit encoding and dutifully does so because doing so still creates a "valid image", it's just an _incorrect_ image.
+I do believe that's pretty much exactly what we are trying to accomplish when fuzzing: finding circumstances for which the system cannot detect that data is erroneous. I have found this to be a useful reminder to design file formats in such a way that ambiguous states are systematically impossible.
+
+===============================================================
+
+Here's a script to generate lots of files and test them
+https://snailien.net/tools/fuzzatron/resources/makefuzz.sh
+
+===============================================================
+
+Hey everyone,
+I've been working on a tool to help me with the "Fuzz and Tell" assignment, and I realized I could easily generalize it such that it might be useful to others. The tool allows you to compare N mutants against a single original file to create a heatmap of what bytes in the header have been changed.
+
+For example, in the image below, I found 45 bitmaps that broke in a particular way and compared them all against the original file. By doing so I was able to determine that bytes 12 and 13 (in hex) are the culprits for why the files break in that particular way!
+
+The tool is available at https://snailien.net/tools/fuzzatron/
+In particular, this has been EXTREMELY useful in identifying what bytes to NOT fuzz (because doing so would cause the file to become unreadable). You can clearly see in the image below which bytes are "no-goes" for fuzzing
+
+https://snailien.net/tools/fuzzatron/resources/behavior.jpg
+https://snailien.net/tools/fuzzatron/resources/no-go.jpg
+
+===============================================================
+
+I have been able to do a real-world fuzzing test against one of my programs and the results have been very interesting!
+
+I made around 2 million internet requests to one of my programs, fuzzing the link each time. I was able to find interesting edge behavior that I can now start addressing.
+https://snailien.net/tools/fuzzatron/resources/exe_results.txt
+
+I am quite happy with the progress i made on error handling yesterday via my fuzzing
+I went from 76% of all inputs resulting in an unhandled error to 0.073% of all inputs resulting in an unhandled error
