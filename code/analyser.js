@@ -1,5 +1,7 @@
 import { Reader } from "./reader.js";
 
+// MAIN WRAPPER CLASS FOR `heatmapAnalyzer.html`
+
 export class heatmap
 {
     constructor(eid_orig, eid_mutants, eid_header)

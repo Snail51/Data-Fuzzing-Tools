@@ -1,6 +1,8 @@
 import { Reader } from "./reader.js";
 import { Provider } from "./provider.js";
 
+// MAIN WRAPPER CLASS FOR `byteEditor.html`
+
 export class Editor
 {
     constructor(eid_input, eid_byteSelector, eid_replaceSelector, eid_linkOut)

@@ -1,6 +1,8 @@
 import { Reader } from "./reader.js";
 import { Provider } from "./provider.js";
 
+// MAIN WRAPPER CLASS FOR `autoFuzzer.html`
+
 export class Fuzzer
 {
     constructor(eid_orig, eid_byteSelector, eid_chanceSelector, eid_imageOut, eid_linkOut, eid_listOut)
